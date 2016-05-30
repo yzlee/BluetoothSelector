@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.RequiresPermission;
+import android.util.Log;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,23 +38,22 @@ public class ReadDataThread extends Thread {
 
     public void run() {
 
-        while (GlobalData.readThreadRun) {
-
             try {
                 mBluetoothSocket = GlobalData.bluetoothSocket;
                 if (mBluetoothSocket == null) {
                     Thread.sleep(1000);
-                    continue;
+                    return;
                 }
 
                 mInputStream = mBluetoothSocket.getInputStream();
                 if (mInputStream == null) {
                     Thread.sleep(1000);
-                    continue;
+                    return;
                 }
 
                 byte[] buffer = new byte[1024];
 
+                Log.i("liyongzhi", "get in to while(true)");
                 while (true) {
                     int bytes = 0;
 
@@ -60,15 +61,16 @@ public class ReadDataThread extends Thread {
                         bytes = mInputStream.read(buffer);
                         if (bytes > 0) {
 
-                            byte[] datas = new byte[bytes];
                             for (int i = 0; i < bytes; i++) {
                                 GlobalData.data = GlobalData.data + buffer[i] + " ";
                             }
                             Intent intent = new Intent(GlobalData.ACTION_DATA_RECEIVED);
                             mContext.sendBroadcast(intent);
+                            Log.i("liyongzhi", "after sendBroadcast and GlobalData.data = " + GlobalData.data);
 
                         }
                     } catch (IOException e) {
+                        Thread.sleep(1000);
                         break;
                     }
 
@@ -89,6 +91,6 @@ public class ReadDataThread extends Thread {
 
         }
 
-    }
+
 
 }

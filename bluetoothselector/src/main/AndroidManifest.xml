@@ -12,15 +12,22 @@
 
         <activity
             android:name=".OpenBluetoothActivity"
-            android:theme="@style/Transparent"
-            />
+            android:theme="@style/Transparent"/>
         <activity
             android:name=".ChooseBluetoothActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-
             android:name=".ConnectBluetoothActivity"
             android:theme="@style/Transparent"/>
+
+        <receiver
+            android:name=".BluetoothStateChangeReceiver">
+
+            <intent-filter>
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED"/>
+            </intent-filter>
+
+        </receiver>
 
     </application>
 

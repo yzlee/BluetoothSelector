@@ -1,5 +1,6 @@
 package cc.liyongzhi.bluetoothselectordemo;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import javax.microedition.khronos.opengles.GL;
 
@@ -50,12 +52,13 @@ public class MainActivity extends AppCompatActivity {
                 MedBluetooth.connectBluetooth(mContext, new BluetoothConnectCallback() {
                     @Override
                     public void connected(BluetoothSocket socket, BluetoothDevice device, Exception e) {
+                        GlobalData.bluetoothSocket = socket;
                         ReadDataThread.startReadDataThread(mContext);
                     }
 
                     @Override
                     public void disconnected() {
-
+                        Toast.makeText(mContext, "Bluetooth Disconnected", Toast.LENGTH_SHORT).show();
                     }
                 });
             }

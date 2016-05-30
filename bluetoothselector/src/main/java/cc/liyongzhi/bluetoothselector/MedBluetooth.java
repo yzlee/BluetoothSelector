@@ -7,9 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.IllegalFormatCodePointException;
 
 import cc.liyongzhi.bluetoothselector.exceptions.BluetoothNotSupportException;
 
@@ -45,6 +47,12 @@ public class MedBluetooth {
 
         //如果mac地址对应的callback key已经存在
         final String key = mMacToKey.get(mac) != null ? mMacToKey.get(mac) : (int)(Math.random()*10000000) + "";
+        if (mMacToKey.get(mac) == null) {
+            mMacToKey.put(mac, key);
+        }
+        //todo mac 为空
+        Log.i("BluetoothStateChange", "final mac = " + mac);
+        Log.i("BluetoothStateChange", "final key = " + mMacToKey.get(mac));
 
         mBluetoothConnectCallbackMap.put(key, bluetoothConnectCallback);
 
@@ -87,17 +95,26 @@ public class MedBluetooth {
         mBluetoothConnectCallbackMap.get(key).internalConnected(socket, device, e);
 //        mBluetoothConnectCallback.internalConnected(socket, device, e);
 
+        Log.i("BluetoothStateChange", "connect mac = " + device.getAddress());
+        Log.i("BluetoothStateChange", "connect key = " + mMacToKey.get(device.getAddress()));
+
+
         if (e != null) {
             mBluetoothConnectCallbackMap.remove(key);
+            Log.i("BluetoothStateChange", "e != null mac = " + device.getAddress());
+            Log.i("BluetoothStateChange", "e != null key = " + mMacToKey.get(device.getAddress()));
         }
     }
 
     protected static void executeBluetoothDisconnectedCallback(String mac) {
 
         String key = mMacToKey.get(mac);
-
-        mBluetoothConnectCallbackMap.get(key).internalDisconnected();
-        mBluetoothConnectCallbackMap.remove(key);
+        Log.i("BluetoothStateChange", "disconnect mac = " + mac);
+        Log.i("BluetoothStateChange", "disconnect key = " + mMacToKey.get(mac));
+        if (mBluetoothConnectCallbackMap.get(key) != null) {
+            mBluetoothConnectCallbackMap.get(key).internalDisconnected();
+            mBluetoothConnectCallbackMap.remove(key);
+        }
     }
 
     protected static ConnectBluetoothThread getConnectThreadByMac(String mac) {
