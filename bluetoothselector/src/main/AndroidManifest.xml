@@ -18,6 +18,7 @@
             android:name=".ChooseBluetoothActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
+
             android:name=".ConnectBluetoothActivity"
             android:theme="@style/Transparent"/>
 
