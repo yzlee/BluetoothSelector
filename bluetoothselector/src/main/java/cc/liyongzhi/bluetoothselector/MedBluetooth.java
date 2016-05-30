@@ -19,7 +19,7 @@ import cc.liyongzhi.bluetoothselector.exceptions.BluetoothNotSupportException;
  */
 public class MedBluetooth {
 
-    public static final String INTENT_ACTION_BLUETOOTH_ADAPTER_CANCEL_DISCOVERY = "cc.liyongzhi.action.BLUETOOTH_ADAPTER_CANCEL_DISCOVERY";
+    protected static final String INTENT_ACTION_BLUETOOTH_ADAPTER_CANCEL_DISCOVERY = "cc.liyongzhi.action.BLUETOOTH_ADAPTER_CANCEL_DISCOVERY";
 
     private static BluetoothAdapter mBluetoothAdapter;
     private static BluetoothSocket mBluetoothSocket;
