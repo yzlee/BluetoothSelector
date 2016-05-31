@@ -118,3 +118,6 @@ if (!thread.isAlive() && thread.getState() != State.RUNNABLE) {
 }
 ```
 不知道对不对。。。
+
+## 作者
+微博：这是一条特立独行的猪 http://weibo.com/1881962417/ 欢迎关注！
