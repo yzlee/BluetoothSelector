@@ -47,9 +47,7 @@ public class MedBluetooth {
 
         //如果mac地址对应的callback key已经存在
         final String key = mMacToKey.get(mac) != null ? mMacToKey.get(mac) : (int)(Math.random()*10000000) + "";
-        if (mMacToKey.get(mac) == null) {
-            mMacToKey.put(mac, key);
-        }
+
         //todo mac 为空
         Log.i("BluetoothStateChange", "final mac = " + mac);
         Log.i("BluetoothStateChange", "final key = " + mMacToKey.get(mac));
@@ -92,6 +90,11 @@ public class MedBluetooth {
     }
 
     protected static void executeBluetoothConnectCallback(BluetoothSocket socket, BluetoothDevice device, Exception e, String key) {
+
+        if (mMacToKey.get(device.getAddress()) == null) {
+            mMacToKey.put(device.getAddress(), key);
+        }
+
         mBluetoothConnectCallbackMap.get(key).internalConnected(socket, device, e);
 //        mBluetoothConnectCallback.internalConnected(socket, device, e);
 
