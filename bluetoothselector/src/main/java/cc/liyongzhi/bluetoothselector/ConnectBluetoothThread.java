@@ -96,7 +96,7 @@ public class ConnectBluetoothThread extends Thread {
             thread = MedBluetooth.getConnectThreadByMac(address);
         }
 
-        if (!thread.isAlive()) {
+        if (!thread.isAlive() && thread.getState() != State.RUNNABLE) {
             thread.start();
         } else {
             socketConnectedCallback.internalDone(null, null, new IOException("已经有在运行的实例"));
