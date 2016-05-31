@@ -9,7 +9,17 @@ import android.os.Looper;
  */
 public abstract class BluetoothConnectCallback {
 
+    /**
+     * 连接成功或失败后调用
+     * @param socket 获得的socket
+     * @param device 本次连接的设备，可存下来方便下次自动重连，就不用每次都选择了。
+     * @param e 错误
+     */
     public abstract void connected(BluetoothSocket socket, BluetoothDevice device, Exception e);
+
+    /**
+     * 连接断开后调用，原理为监听系统广播
+     */
     public abstract void disconnected();
 
     public void internalConnected(final BluetoothSocket socket, final BluetoothDevice device, final Exception e) {

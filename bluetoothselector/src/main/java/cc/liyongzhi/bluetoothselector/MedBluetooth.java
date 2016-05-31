@@ -30,10 +30,20 @@ public class MedBluetooth {
     protected static Handler mHandler;
     private static HashMap<String, ConnectBluetoothThread> mBluetoothMap = new HashMap<>(); //防止同一mac地址多次连接。
 
+    /**
+     * @param context 上下文
+     * @param bluetoothConnectCallback 连接建立和取消连接后调用的回调函数
+     */
     public static void connectBluetooth(Context context, BluetoothConnectCallback bluetoothConnectCallback) {
         connectBluetooth(context, "", true, bluetoothConnectCallback);
     }
 
+    /**
+     * @param context 上下文
+     * @param mac 如果以前有保存蓝牙mac地址，则可以直接输入
+     * @param showConnectBluetoothActivity 是否显示等待界面，若后台有自动重连请设置为false，不然每次连接都转圈圈。。。
+     * @param bluetoothConnectCallback 连接建立和取消连接后调用的回调函数
+     */
     public static void connectBluetooth(final Context context, String mac, Boolean showConnectBluetoothActivity, BluetoothConnectCallback bluetoothConnectCallback) {
 
         //确认在主线程中

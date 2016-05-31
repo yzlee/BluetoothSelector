@@ -28,6 +28,47 @@
 
 
 ## 使用
+
+#### 引用：
+
+``` java
+/**
+ * @param context 上下文
+ * @param bluetoothConnectCallback 连接建立和取消连接后调用的回调函数
+ */
+MedBluetooth.connectBluetooth(Context context, BluetoothConnectCallback bluetoothConnectCallback);
+
+```
+或者
+
+``` java
+/**
+ * @param context 上下文
+ * @param mac 如果以前有保存蓝牙mac地址，则可以直接输入
+ * @param showConnectBluetoothActivity 是否显示等待界面，若后台有自动重连请设置为false，不然每次连接都转圈圈。。。
+ * @param bluetoothConnectCallback 连接建立和取消连接后调用的回调函数
+ */
+MedBluetooth.connectBluetooth(Context context, String mac, Boolean showConnectBluetoothActivity, BluetoothConnectCallback bluetoothConnectCallback);
+
+```
+
+`BluetoothConnectCallback`有两个方法：
+```java
+/**
+ * 连接成功或失败后调用
+ * @param socket 获得的socket
+ * @param device 本次连接的设备，可存下来方便下次自动重连，就不用每次都选择了。
+ * @param e 错误
+ */
+public abstract void connected(BluetoothSocket socket, BluetoothDevice device, Exception e);
+
+/**
+ * 连接断开后调用，原理为监听系统广播
+ */
+public abstract void disconnected();
+```
+
+#### 示例：
 在需要连接蓝牙或者选择设备的地方加入代码，本例为位于OnClickListener里。
 
 - 输入为`Context`、`BluetoothConnectCallback`时：
@@ -38,13 +79,16 @@ mButton.setOnClickListener(new View.OnClickListener() {
         //以下为调用本库，输入为Context、BluetoothConnectCallback
         MedBluetooth.connectBluetooth(mContext, new BluetoothConnectCallback() {
             @Override
-            // 连接成功后调用。
+            // 连接成功或失败后调用。
             public void connected(BluetoothSocket socket, BluetoothDevice device, Exception e) {
-                //输出为获得的socket，可以自行存到全局变量里进行数据输入输出操作。
-                //device为本次连接的设备，可调用 device.getAddress() 获得mac地址。
-                //e 为错误。
+                if (e != null) {
+                    //连接失败
+                } else {
+                    //输出为获得的socket，可以自行存到全局变量里进行数据输入输出操作。
+                    //device为本次连接的设备，可调用 device.getAddress() 获得mac地址。
+                    //e 为错误。
+                }
             }
-
             @Override
             // 连接断开后调用
             public void disconnected() {
