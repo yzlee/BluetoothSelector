@@ -30,8 +30,14 @@ public class ReadDataThread extends Thread {
             mReadDataThread = new ReadDataThread(context);
             mReadDataThread.start();
         } else {
-            if (!mReadDataThread.isAlive()) {
-                mReadDataThread.start();
+
+            if (!mReadDataThread.isAlive() && mReadDataThread.getState() != State.RUNNABLE) {
+                try {
+                    mReadDataThread.start();
+                } catch (Exception e) {
+
+                }
+
             }
         }
     }

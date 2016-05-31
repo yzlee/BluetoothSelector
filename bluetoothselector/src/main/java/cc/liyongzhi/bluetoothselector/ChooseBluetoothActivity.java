@@ -12,6 +12,7 @@ import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -60,6 +61,12 @@ public class ChooseBluetoothActivity extends AppCompatActivity {
         setContentView(R.layout.activity_choose_bluetooth);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+
+            getSupportActionBar().setTitle(R.string.choose_bluetooth_activity_title);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
         mContext = this;
 
         BluetoothScreenManger.getScreenManger().pushActivity(this);
@@ -168,6 +175,15 @@ public class ChooseBluetoothActivity extends AppCompatActivity {
                 Toast.makeText(this, "蓝牙打开成功", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            BluetoothScreenManger.getScreenManger().popAllActivity();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 

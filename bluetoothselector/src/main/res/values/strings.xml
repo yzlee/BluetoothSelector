@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BluetoothSelector</string>
+    <string name="choose_bluetooth_activity_title">蓝牙选择</string>
 </resources>
