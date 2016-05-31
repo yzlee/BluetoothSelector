@@ -52,13 +52,19 @@ public class MainActivity extends AppCompatActivity {
                 MedBluetooth.connectBluetooth(mContext, new BluetoothConnectCallback() {
                     @Override
                     public void connected(BluetoothSocket socket, BluetoothDevice device, Exception e) {
-                        GlobalData.bluetoothSocket = socket;
-                        ReadDataThread.startReadDataThread(mContext);
+                        if (e != null) {
+
+                        } else{
+                            GlobalData.bluetoothSocket = socket;
+                            ReadDataThread.startReadDataThread(mContext);
+                            mButton.setText("已连接");
+                        }
                     }
 
                     @Override
                     public void disconnected() {
                         Toast.makeText(mContext, "Bluetooth Disconnected", Toast.LENGTH_SHORT).show();
+                        mButton.setText("重新连接");
                     }
                 });
             }
