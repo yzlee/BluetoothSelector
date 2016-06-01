@@ -24,7 +24,7 @@
 
 #### Gradle:
 
-> compile 'cc.liyongzhi.bluetoothselector:bluetoothselector:1.7'
+> compile 'cc.liyongzhi.bluetoothselector:bluetoothselector:1.8'
 
 
 ## 使用
@@ -104,6 +104,10 @@ mButton.setOnClickListener(new View.OnClickListener() {
 
 ## 更新历史
 
+#### 2016.6.1 version 1.8
+
+修复可能的线程运行完后又被start问题。
+
 #### 2016.5.31 version 1.7
 
 可用版本。
@@ -111,13 +115,6 @@ mButton.setOnClickListener(new View.OnClickListener() {
 
 ## Bug
 
-目前公司几款app均未发现bug。但有一处判断线程是否正在运行时使用了   
-```java
-if (!thread.isAlive() && thread.getState() != State.RUNNABLE) {
-            thread.start();
-}
-```
-不知道对不对。。。
 
 ## 作者
 微博：这是一条特立独行的猪 http://weibo.com/1881962417/ 欢迎关注！

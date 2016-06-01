@@ -89,14 +89,15 @@ public class ConnectBluetoothThread extends Thread {
         }
     }
 
+
     public static void startUniqueConnectThread(Context context, String address, SocketConnectedCallback socketConnectedCallback) {
         ConnectBluetoothThread thread = MedBluetooth.getConnectThreadByMac(address);
-        if (thread == null) {
+        if (thread == null || thread.getState() == State.TERMINATED) {
             MedBluetooth.addConnectThreadToMap(address, new ConnectBluetoothThread(context, address, socketConnectedCallback));
             thread = MedBluetooth.getConnectThreadByMac(address);
         }
-
-        if (!thread.isAlive() && thread.getState() != State.RUNNABLE) {
+        //线程一旦被终止，就无法使用start在重新启动。
+        if (!thread.isAlive() && thread.getState() == State.NEW) {
             thread.start();
         } else {
             socketConnectedCallback.internalDone(null, null, new IOException("已经有在运行的实例"));
