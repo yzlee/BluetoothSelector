@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 import javax.microedition.khronos.opengles.GL;
 
 import cc.liyongzhi.bluetoothselector.BluetoothConnectCallback;
+import cc.liyongzhi.bluetoothselector.BluetoothConnectWithDataManageCallback;
 import cc.liyongzhi.bluetoothselector.MedBluetooth;
 
 public class MainActivity extends AppCompatActivity {
@@ -76,14 +78,31 @@ public class MainActivity extends AppCompatActivity {
         mButton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MedBluetooth.connectBluetooth(mContext, new BluetoothConnectCallback() {
+                MedBluetooth.connectBluetooth(mContext, new BluetoothConnectWithDataManageCallback() {
+                    @Override
+                    public void dataMange(int bytes, byte[] buffer, Exception e) {
+
+                        if (e != null) {
+                            e.printStackTrace();
+                        } else {
+                            for (int i = 0; i < bytes; i++) {
+                                GlobalData.data2 = GlobalData.data2 + buffer[i] + " ";
+                                if (GlobalData.data2.length() > 300) {
+                                    GlobalData.data2 = "";
+                                }
+                            }
+                            Intent intent = new Intent(GlobalData.ACTION_DATA_RECEIVED);
+                            mContext.sendBroadcast(intent);
+                            Log.i("liyongzhi", "after sendBroadcast and GlobalData.data = " + GlobalData.data2);
+                        }
+                    }
+
                     @Override
                     public void connected(BluetoothSocket socket, BluetoothDevice device, Exception e) {
                         if (e != null) {
 
                         } else{
                             GlobalData.bluetoothSocket2 = socket;
-                            ReadDataThread2.startReadDataThread(mContext);
                             mButton2.setText("已连接2");
                         }
                     }
