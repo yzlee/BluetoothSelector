@@ -9,7 +9,9 @@ public class GlobalData {
 
     public static final String ACTION_DATA_RECEIVED = "cc.liyongzhi.receiveddata";
     public static BluetoothSocket bluetoothSocket;
+    public static BluetoothSocket bluetoothSocket2;
     public static Boolean readThreadRun = true;
     public static String data = "";
+    public static String data2 = "";
 
 }

@@ -16,16 +16,34 @@
         android:id="@+id/btn_connect_device"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="连接设备"
+        android:text="连接设备1"
         android:textColor="@color/white"
         android:backgroundTint="@color/colorAccent"
         android:layout_alignParentBottom="true"/>
 
+    <Button
+        android:id="@+id/btn_connect_device2"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="连接设备2"
+        android:textColor="@color/white"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/colorAccent"
+        android:layout_above="@+id/btn_connect_device"/>
+
     <TextView
         android:id="@+id/tv_monitor"
         android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginBottom="20dp"
+        android:layout_above="@id/btn_connect_device2"/>
+
+    <TextView
+        android:id="@+id/tv_monitor2"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/btn_connect_device"/>
+        android:layout_above="@id/tv_monitor"
+        android:layout_marginBottom="20dp"/>
 
 
 </RelativeLayout>

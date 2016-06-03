@@ -23,7 +23,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Context mContext;
     private TextView mTextView;
+    private TextView mTextView2;
     private Button mButton;
+    private Button mButton2;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(mReceiver,filter);
 
         mButton = (Button) findViewById(R.id.btn_connect_device);
+        mButton2 = (Button) findViewById(R.id.btn_connect_device2);
 
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,24 +60,49 @@ public class MainActivity extends AppCompatActivity {
                         } else{
                             GlobalData.bluetoothSocket = socket;
                             ReadDataThread.startReadDataThread(mContext);
-                            mButton.setText("已连接");
+                            mButton.setText("已连接1");
                         }
                     }
 
                     @Override
                     public void disconnected() {
                         Toast.makeText(mContext, "Bluetooth Disconnected", Toast.LENGTH_SHORT).show();
-                        mButton.setText("重新连接");
+                        mButton.setText("重新连接1");
+                    }
+                });
+            }
+        });
+
+        mButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MedBluetooth.connectBluetooth(mContext, new BluetoothConnectCallback() {
+                    @Override
+                    public void connected(BluetoothSocket socket, BluetoothDevice device, Exception e) {
+                        if (e != null) {
+
+                        } else{
+                            GlobalData.bluetoothSocket2 = socket;
+                            ReadDataThread2.startReadDataThread(mContext);
+                            mButton2.setText("已连接2");
+                        }
+                    }
+
+                    @Override
+                    public void disconnected() {
+                        Toast.makeText(mContext, "Bluetooth2 Disconnected", Toast.LENGTH_SHORT).show();
+                        mButton2.setText("重新连接2");
                     }
                 });
             }
         });
 
         mTextView = (TextView) findViewById(R.id.tv_monitor);
-
+        mTextView2 = (TextView) findViewById(R.id.tv_monitor2);
     }
 
     public void refreshData() {
         mTextView.setText(GlobalData.data);
+        mTextView2.setText(GlobalData.data2);
     }
 }
