@@ -26,6 +26,7 @@ public class MedBluetooth {
     private static BluetoothAdapter mBluetoothAdapter;
     private static BluetoothSocket mBluetoothSocket;
     private static HashMap<String, BluetoothConnectCallback> mBluetoothConnectCallbackMap = new HashMap<>();
+    private static HashMap<String, BluetoothReadDataThread> mBluetoothReadDataThreadMap = new HashMap<>();
     private static HashMap<String, String> mMacToKey = new HashMap<>();
     protected static Handler mHandler;
     private static HashMap<String, ConnectBluetoothThread> mBluetoothMap = new HashMap<>(); //防止同一mac地址多次连接。
@@ -105,6 +106,20 @@ public class MedBluetooth {
             mMacToKey.put(device.getAddress(), key);
         }
 
+        if (e != null && mBluetoothConnectCallbackMap.get(key) instanceof BluetoothConnectWithDataManageCallback) {
+            BluetoothReadDataThread thread = new BluetoothReadDataThread(socket, (BluetoothConnectWithDataManageCallback)mBluetoothConnectCallbackMap.get(key));
+            BluetoothReadDataThread oldThread = mBluetoothReadDataThreadMap.get(key);
+            if (oldThread == null || oldThread.getState() == Thread.State.TERMINATED) {
+                mBluetoothReadDataThreadMap.put(key, thread);
+                thread.start();
+            } else {
+                oldThread.interrupt();
+                mBluetoothReadDataThreadMap.put(key, thread);
+                thread.start();
+            }
+        }
+
+
         mBluetoothConnectCallbackMap.get(key).internalConnected(socket, device, e);
 //        mBluetoothConnectCallback.internalConnected(socket, device, e);
 
@@ -125,6 +140,12 @@ public class MedBluetooth {
         Log.i("BluetoothStateChange", "disconnect mac = " + mac);
         Log.i("BluetoothStateChange", "disconnect key = " + mMacToKey.get(mac));
         if (mBluetoothConnectCallbackMap.get(key) != null) {
+            if (mBluetoothConnectCallbackMap.get(key) instanceof BluetoothConnectWithDataManageCallback) {
+                BluetoothReadDataThread thread = mBluetoothReadDataThreadMap.get(key);
+                if (thread != null) {
+                    thread.interrupt();
+                }
+            }
             mBluetoothConnectCallbackMap.get(key).internalDisconnected();
             mBluetoothConnectCallbackMap.remove(key);
         }
