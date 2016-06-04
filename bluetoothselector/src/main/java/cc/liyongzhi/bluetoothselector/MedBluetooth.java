@@ -31,8 +31,10 @@ public class MedBluetooth {
     protected static Handler mHandler;
     private static HashMap<String, ConnectBluetoothThread> mBluetoothMap = new HashMap<>(); //防止同一mac地址多次连接。
 
+    private static final String TAG = "MedBluetooth";
+
     /**
-     * @param context 上下文
+     * @param context                  上下文
      * @param bluetoothConnectCallback 连接建立和取消连接后调用的回调函数
      */
     public static void connectBluetooth(Context context, BluetoothConnectCallback bluetoothConnectCallback) {
@@ -40,10 +42,10 @@ public class MedBluetooth {
     }
 
     /**
-     * @param context 上下文
-     * @param mac 如果以前有保存蓝牙mac地址，则可以直接输入
+     * @param context                      上下文
+     * @param mac                          如果以前有保存蓝牙mac地址，则可以直接输入
      * @param showConnectBluetoothActivity 是否显示等待界面，若后台有自动重连请设置为false，不然每次连接都转圈圈。。。
-     * @param bluetoothConnectCallback 连接建立和取消连接后调用的回调函数
+     * @param bluetoothConnectCallback     连接建立和取消连接后调用的回调函数
      */
     public static void connectBluetooth(final Context context, String mac, Boolean showConnectBluetoothActivity, BluetoothConnectCallback bluetoothConnectCallback) {
 
@@ -56,14 +58,20 @@ public class MedBluetooth {
             }
         }
 
+        Log.d(TAG, "connectBluetooth: before put in map bluetoothConnectCallback instanceof BluetoothConnectWithDataManageCallback == " + (bluetoothConnectCallback instanceof BluetoothConnectWithDataManageCallback));
+
+
         //如果mac地址对应的callback key已经存在
-        final String key = mMacToKey.get(mac) != null ? mMacToKey.get(mac) : (int)(Math.random()*10000000) + "";
+        final String key = mMacToKey.get(mac) != null ? mMacToKey.get(mac) : (int) (Math.random() * 10000000) + "";
 
         //todo mac 为空
         Log.i("BluetoothStateChange", "final mac = " + mac);
         Log.i("BluetoothStateChange", "final key = " + mMacToKey.get(mac));
 
         mBluetoothConnectCallbackMap.put(key, bluetoothConnectCallback);
+
+        Log.d(TAG, "connectBluetooth: after put in map bluetoothConnectCallback instanceof BluetoothConnectWithDataManageCallback == " + (mBluetoothConnectCallbackMap.get(key) instanceof BluetoothConnectWithDataManageCallback) + " callbackid = " + mBluetoothConnectCallbackMap.get(key).toString());
+
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -86,7 +94,7 @@ public class MedBluetooth {
             intent.putExtra("callback_key", key);
             intent.putExtra("bluetooth_mac_address", mac);
             context.startActivity(intent);
-        } else if (!showConnectBluetoothActivity){
+        } else if (!showConnectBluetoothActivity) {
             ConnectBluetoothThread.startUniqueConnectThread(context, mac, new SocketConnectedCallback() {
                 @Override
                 public void done(BluetoothSocket socket, BluetoothDevice device, IOException e) {
@@ -106,17 +114,26 @@ public class MedBluetooth {
             mMacToKey.put(device.getAddress(), key);
         }
 
-        if (e != null && mBluetoothConnectCallbackMap.get(key) instanceof BluetoothConnectWithDataManageCallback) {
-            BluetoothReadDataThread thread = new BluetoothReadDataThread(socket, (BluetoothConnectWithDataManageCallback)mBluetoothConnectCallbackMap.get(key));
+        Log.d(TAG, "executeBluetoothConnectCallback: mBluetoothConnectCallbackMap.get(key) instanceof BluetoothConnectWithDataManageCallback == " + (mBluetoothConnectCallbackMap.get(key) instanceof BluetoothConnectWithDataManageCallback) + " callbackid = " + mBluetoothConnectCallbackMap.get(key).toString());
+
+
+        if (e == null && mBluetoothConnectCallbackMap.get(key) instanceof BluetoothConnectWithDataManageCallback) {
+            Log.d(TAG, "executeBluetoothConnectCallback: mBluetoothConnectCallbackMap.get(key) instanceof BluetoothConnectWithDataManageCallback and e == " + e);
+            BluetoothReadDataThread thread = new BluetoothReadDataThread(socket, (BluetoothConnectWithDataManageCallback) mBluetoothConnectCallbackMap.get(key));
             BluetoothReadDataThread oldThread = mBluetoothReadDataThreadMap.get(key);
             if (oldThread == null || oldThread.getState() == Thread.State.TERMINATED) {
+                Log.d(TAG, "executeBluetoothConnectCallback: oldThread == null");
                 mBluetoothReadDataThreadMap.put(key, thread);
                 thread.start();
             } else {
+                Log.d(TAG, "executeBluetoothConnectCallback: oldThread != null");
                 oldThread.interrupt();
                 mBluetoothReadDataThreadMap.put(key, thread);
                 thread.start();
             }
+            Log.d(TAG, "executeBluetoothConnectCallback: thread == " + thread.toString());
+        } else {
+            Log.d(TAG, "executeBluetoothConnectCallback: mBluetoothConnectCallbackMap.get(key) instanceof BluetoothConnectWithDataManageCallback == " + (mBluetoothConnectCallbackMap.get(key) instanceof BluetoothConnectWithDataManageCallback));
         }
 
 
@@ -140,11 +157,11 @@ public class MedBluetooth {
         Log.i("BluetoothStateChange", "disconnect mac = " + mac);
         Log.i("BluetoothStateChange", "disconnect key = " + mMacToKey.get(mac));
         if (mBluetoothConnectCallbackMap.get(key) != null) {
-            if (mBluetoothConnectCallbackMap.get(key) instanceof BluetoothConnectWithDataManageCallback) {
-                BluetoothReadDataThread thread = mBluetoothReadDataThreadMap.get(key);
-                if (thread != null) {
-                    thread.interrupt();
-                }
+            BluetoothReadDataThread thread = mBluetoothReadDataThreadMap.get(key);
+            if (thread != null) {
+                Log.d(TAG, "executeBluetoothDisconnectedCallback: thread == " + thread.toString());
+                thread.stopThread();
+                thread.interrupt();
             }
             mBluetoothConnectCallbackMap.get(key).internalDisconnected();
             mBluetoothConnectCallbackMap.remove(key);

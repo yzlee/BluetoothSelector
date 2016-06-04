@@ -2,6 +2,7 @@ package cc.liyongzhi.bluetoothselector;
 
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +14,8 @@ public class BluetoothReadDataThread extends Thread {
 
     private BluetoothSocket mSocket;
     private BluetoothConnectWithDataManageCallback mConnectCallback;
+    private static final String TAG = "BluetoothReadDataThread";
+    private Boolean mStop = false;
 
     public BluetoothReadDataThread(BluetoothSocket socket, BluetoothConnectWithDataManageCallback connectCallback) {
         mSocket = socket;
@@ -24,6 +27,7 @@ public class BluetoothReadDataThread extends Thread {
         try {
             if (mSocket == null) {
                 mConnectCallback.internalDataMange(0, null, new Exception("Socket 为空"));
+                Log.d(TAG, "run: Socket == null");
                 return;
             }
 
@@ -31,12 +35,13 @@ public class BluetoothReadDataThread extends Thread {
 
             if (inputStream == null) {
                 mConnectCallback.internalDataMange(0, null, new Exception("InputStream 创建失败"));
+                Log.d(TAG, "run: InputStream == null");
                 return;
             }
 
             byte[] buffer = new byte[1024];
 
-            while (true) {
+            while (!mStop) {
                 int bytes = 0;
 
                 try {
@@ -47,6 +52,7 @@ public class BluetoothReadDataThread extends Thread {
 
                     }
                 } catch (IOException e) {
+                    e.printStackTrace();
                     mConnectCallback.internalDataMange(bytes, buffer, new Exception("处理数据出错！"));
                 }
             }
@@ -55,6 +61,10 @@ public class BluetoothReadDataThread extends Thread {
             mConnectCallback.internalDataMange(0, null, new Exception("处理数据线程出错！"));
         }
 
+    }
+
+    public void stopThread() {
+        mStop = true;
     }
 
 

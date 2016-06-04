@@ -54,14 +54,30 @@ public class MainActivity extends AppCompatActivity {
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MedBluetooth.connectBluetooth(mContext, new BluetoothConnectCallback() {
+                MedBluetooth.connectBluetooth(mContext, new BluetoothConnectWithDataManageCallback() {
+                    @Override
+                    public void dataMange(int bytes, byte[] buffer, Exception e) {
+                        if (e != null) {
+
+                        } else {
+                            for (int i = 0; i < bytes; i++) {
+                                GlobalData.data = GlobalData.data + buffer[i] + " ";
+                                if (GlobalData.data.length() > 100) {
+                                    GlobalData.data = "";
+                                }
+                            }
+                            Intent intent = new Intent(GlobalData.ACTION_DATA_RECEIVED);
+                            mContext.sendBroadcast(intent);
+                            Log.i("liyongzhi", "after sendBroadcast and GlobalData.data = " + GlobalData.data);
+                        }
+                    }
+
                     @Override
                     public void connected(BluetoothSocket socket, BluetoothDevice device, Exception e) {
                         if (e != null) {
 
                         } else{
                             GlobalData.bluetoothSocket = socket;
-                            ReadDataThread.startReadDataThread(mContext);
                             mButton.setText("已连接1");
                         }
                     }

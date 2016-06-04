@@ -12,18 +12,6 @@ public abstract class BluetoothConnectWithDataManageCallback extends BluetoothCo
     public abstract void dataMange(int bytes, byte[] buffer, Exception e);
 
     public void internalDataMange(final int bytes, final byte[] buffer, final Exception e) {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            if (!MedBluetooth.mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    dataMange(bytes, buffer, e);
-                }
-            })) {
-
-            }
-        } else {
-            this.dataMange(bytes, buffer, e);
-        }
+        this.dataMange(bytes, buffer, e);
     }
-
 }

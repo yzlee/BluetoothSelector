@@ -137,6 +137,10 @@ public class ChooseBluetoothActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                if(!checkBluetoothIsEnable()) {
+                    return;
+                };
+
                 switch (state) {
                     case 0:
                         mBluetoothAdapter.startDiscovery();
