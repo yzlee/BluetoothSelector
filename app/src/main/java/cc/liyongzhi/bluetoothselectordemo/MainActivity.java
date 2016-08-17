@@ -60,7 +60,9 @@ public class MainActivity extends AppCompatActivity {
                         if (e != null) {
 
                         } else {
+                            DataParser dataParser = new DataParser();
                             for (int i = 0; i < bytes; i++) {
+                                dataParser.parsePacket(buffer[i]);
                                 GlobalData.data = GlobalData.data + buffer[i] + " ";
                                 if (GlobalData.data.length() > 100) {
                                     GlobalData.data = "";
@@ -78,6 +80,13 @@ public class MainActivity extends AppCompatActivity {
 
                         } else{
                             GlobalData.bluetoothSocket = socket;
+                            GlobalFunction.SendStartToBluetoothInBackground();
+                            GlobalFunction.SendPatientIdToBluetoothInBackground(true, new BooleanCallBack() {
+                                @Override
+                                public void onCallBack(Boolean b) {
+
+                                }
+                            });
                             mButton.setText("已连接1");
                         }
                     }
