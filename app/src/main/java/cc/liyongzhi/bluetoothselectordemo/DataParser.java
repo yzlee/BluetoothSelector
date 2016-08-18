@@ -1,32 +1,24 @@
 package cc.liyongzhi.bluetoothselectordemo;
 
 import android.util.Log;
-
 import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 public class DataParser {
 
     private static DataParser parser = null;
     FileOutputStream output = null;
     private static int HEAD_LEN = 19;
-    public enum HEADER_STATE
+    private enum HEADER_STATE
     {
         FAIL, FOUND;
     }
     private static HEADER_STATE headerState = HEADER_STATE.FAIL; // 包头捕获状态
     private static HEADER_STATE tailState = HEADER_STATE.FAIL;   // 包捕获状态
     private int index = 0;
-
-
     private final int BUFFER_SIZE = 4096;
     private byte[] headBuf = new byte[4];               // 头部缓存区
     private byte[] frameBuf = new byte[BUFFER_SIZE];    // 数据缓存区
     private int confiLength = 0;   //包长度
-
-
 
     /**
      *  捕获初始化  初始化包头解析状态，缓存区，index
@@ -41,19 +33,6 @@ public class DataParser {
         frameBuf = new byte[BUFFER_SIZE];
     }
 
-    public DataParser() {
-        /*
-        file = new File("/DCIM/ecgdata.log");
-        try {
-            output = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        */
-    }
-
-
-
     int headcounter =0;
     private void parseHead(byte in)
     {
@@ -64,15 +43,12 @@ public class DataParser {
         frameBuf[2] = frameBuf[3];
         frameBuf[3] = in;
 
-
         if (frameBuf[0] == 127 && frameBuf[1] == -128 && frameBuf[2] == 127
                 && frameBuf[3] == -128)
         {
             headerState = HEADER_STATE.FOUND;
             headcounter++;
-            Log.i("counter", "headcounter = "+ Integer.toString(headcounter));
         }
-
     }
 
     public DataPacket parsePacket(byte in)
@@ -133,7 +109,7 @@ public class DataParser {
     private void putPacket() {
         byte[] inQueue = new byte[4000 + HEAD_LEN];
         System.arraycopy(frameBuf, 0, inQueue, 0, confiLength + HEAD_LEN);
-        GlobalData.putPacket(inQueue);
+        Med.putPacket(inQueue);
 
     }
     private void makeAFakePacketAndPut() {
@@ -143,7 +119,7 @@ public class DataParser {
             frameBuf[i] = 126;
         }
         System.arraycopy(frameBuf, 0, inQueue, 0, 4000 + HEAD_LEN);
-        GlobalData.putPacket(inQueue);
+        Med.putPacket(inQueue);
     }
     private void initHeader() {
         frameBuf[0] = 127;

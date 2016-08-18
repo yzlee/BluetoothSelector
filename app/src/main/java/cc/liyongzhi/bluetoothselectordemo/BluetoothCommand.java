@@ -1,6 +1,6 @@
 package cc.liyongzhi.bluetoothselectordemo;
 
-public class BLECommand {
+public class BluetoothCommand {
 	public static String ECG = "ECG,";//设备向手机发送设备类型(ECG)及ID 号
 	//public static String OK = "ECG:OK#";//
 	public static String ERROR = "ERROR#";//

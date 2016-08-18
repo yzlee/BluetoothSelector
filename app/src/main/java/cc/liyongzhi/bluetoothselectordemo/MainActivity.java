@@ -1,6 +1,5 @@
 package cc.liyongzhi.bluetoothselectordemo;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
@@ -15,9 +14,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import javax.microedition.khronos.opengles.GL;
-
-import cc.liyongzhi.bluetoothselector.BluetoothConnectCallback;
 import cc.liyongzhi.bluetoothselector.BluetoothConnectWithDataManageCallback;
 import cc.liyongzhi.bluetoothselector.MedBluetooth;
 
@@ -32,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(GlobalData.ACTION_DATA_RECEIVED)) {
+            if (action.equals(Med.ACTION_DATA_RECEIVED)) {
                 refreshData();
             }
         }
@@ -45,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         mContext = this;
 
-        IntentFilter filter = new IntentFilter(GlobalData.ACTION_DATA_RECEIVED);
+        IntentFilter filter = new IntentFilter(Med.ACTION_DATA_RECEIVED);
         registerReceiver(mReceiver,filter);
 
         mButton = (Button) findViewById(R.id.btn_connect_device);
@@ -63,14 +59,14 @@ public class MainActivity extends AppCompatActivity {
                             DataParser dataParser = new DataParser();
                             for (int i = 0; i < bytes; i++) {
                                 dataParser.parsePacket(buffer[i]);
-                                GlobalData.data = GlobalData.data + buffer[i] + " ";
-                                if (GlobalData.data.length() > 100) {
-                                    GlobalData.data = "";
+                                Med.data = Med.data + buffer[i] + " ";
+                                if (Med.data.length() > 100) {
+                                    Med.data = "";
                                 }
                             }
-                            Intent intent = new Intent(GlobalData.ACTION_DATA_RECEIVED);
+                            Intent intent = new Intent(Med.ACTION_DATA_RECEIVED);
                             mContext.sendBroadcast(intent);
-                            Log.i("liyongzhi", "after sendBroadcast and GlobalData.data = " + GlobalData.data);
+                            Log.i("liyongzhi", "after sendBroadcast and Med.data = " + Med.data);
                         }
                     }
 
@@ -79,9 +75,9 @@ public class MainActivity extends AppCompatActivity {
                         if (e != null) {
 
                         } else{
-                            GlobalData.bluetoothSocket = socket;
-                            GlobalFunction.SendStartToBluetoothInBackground();
-                            GlobalFunction.SendPatientIdToBluetoothInBackground(true, new BooleanCallBack() {
+                            Med.bluetoothSocket = socket;
+                            BluetoothUtils.SendStartToBluetoothInBackground();
+                            BluetoothUtils.SendPatientIdToBluetoothInBackground(true, new BooleanCallBack() {
                                 @Override
                                 public void onCallBack(Boolean b) {
 
@@ -111,14 +107,14 @@ public class MainActivity extends AppCompatActivity {
                             e.printStackTrace();
                         } else {
                             for (int i = 0; i < bytes; i++) {
-                                GlobalData.data2 = GlobalData.data2 + buffer[i] + " ";
-                                if (GlobalData.data2.length() > 300) {
-                                    GlobalData.data2 = "";
+                                Med.data2 = Med.data2 + buffer[i] + " ";
+                                if (Med.data2.length() > 300) {
+                                    Med.data2 = "";
                                 }
                             }
-                            Intent intent = new Intent(GlobalData.ACTION_DATA_RECEIVED);
+                            Intent intent = new Intent(Med.ACTION_DATA_RECEIVED);
                             mContext.sendBroadcast(intent);
-                            Log.i("liyongzhi", "after sendBroadcast and GlobalData.data = " + GlobalData.data2);
+                            Log.i("liyongzhi", "after sendBroadcast and Med.data = " + Med.data2);
                         }
                     }
 
@@ -127,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                         if (e != null) {
 
                         } else{
-                            GlobalData.bluetoothSocket2 = socket;
+                            Med.bluetoothSocket2 = socket;
                             mButton2.setText("已连接2");
                         }
                     }
@@ -146,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void refreshData() {
-        mTextView.setText(GlobalData.data);
-        mTextView2.setText(GlobalData.data2);
+        mTextView.setText(Med.data);
+        mTextView2.setText(Med.data2);
     }
 }

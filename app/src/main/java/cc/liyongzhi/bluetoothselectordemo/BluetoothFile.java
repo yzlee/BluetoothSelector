@@ -13,13 +13,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class BLEFile {
+public class BluetoothFile {
 	private String filename = null;
 	private String dir = null;
 	private String absolutePath = null;
 	private String SDPath = null;
 
-	public BLEFile(String SDPath, String dir, String name) {
+	public BluetoothFile(String SDPath, String dir, String name) {
 		this.dir = dir;
 		this.filename = name;
 		this.absolutePath = SDPath + dir;
