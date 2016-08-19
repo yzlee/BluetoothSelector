@@ -1,7 +1,10 @@
 package cc.liyongzhi.dataprocessingcenter;
 
-import java.lang.ref.PhantomReference;
+import android.os.Environment;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import cc.liyongzhi.dataprocessingcenter.thread.cuttingthread.CuttingThread;
+import cc.liyongzhi.dataprocessingcenter.thread.SavingThread;
 
 /** 数据处理中心
  * 读取数据后，分为：
@@ -9,29 +12,35 @@ import java.util.concurrent.LinkedBlockingQueue;
  * 2、 本地保存
  * 线程启动顺序分为：
  * 1、 切割线程： 将每秒数据包分离。每个header和body为一个数据包。
+ * 2、 保存线程： 将数据去头后保存到本地。
  * Created by lee on 8/18/16.
  */
 
 public class DataProcessingCenter {
 
-    public static final int HEADER_LENGTH = 19;
-    public static final int BODY_LENGTH = 4000;
-
     private static DataProcessingCenter mInstance;
-    private DataProcessingWarningManager mManager;
 
+    private DataProcessingSetting mSetting;
+    private DataProcessingWarningManager mManager;
+    private CuttingThread mCuttingThread;
+    private SavingThread mSavingThread;
 
     private LinkedBlockingQueue<Byte> originDataQueue = new LinkedBlockingQueue<>();
     private LinkedBlockingQueue<byte[]> cutDataQueue = new LinkedBlockingQueue<>();
+    private LinkedBlockingQueue<byte[]> cutDataQueueForSaving = new LinkedBlockingQueue<>();
 
 
+    private DataProcessingCenter(DataProcessingSetting setting) {
+        mSetting = setting;
+        mManager = setting.getManager();
 
-    private DataProcessingCenter(DataProcessingWarningManager manager) {
-        mManager = manager;
+        //正序初始化，倒序执行，防止数据丢失。
+        mCuttingThread = CuttingThread.getInstance(originDataQueue, cutDataQueue, cutDataQueueForSaving, mSetting);
+        mSavingThread = SavingThread.getInstance(cutDataQueueForSaving, mSetting);
 
-        CuttingThread cuttingThread = new CuttingThread(HEADER_LENGTH, BODY_LENGTH, originDataQueue, cutDataQueue, mManager);
-
-        cuttingThread.start();
+        //倒序执行
+        mSavingThread.start();
+        mCuttingThread.start();
     }
 
     /**
@@ -41,7 +50,7 @@ public class DataProcessingCenter {
         try {
             originDataQueue.put(b);
         } catch (InterruptedException e) {
-            mManager.mangeOriginDataQueueWarning(originDataQueue, e);
+            mManager.manageOriginDataQueueWarning(originDataQueue, e);
         }
     }
 
@@ -50,11 +59,19 @@ public class DataProcessingCenter {
     }
 
 
-    public static DataProcessingCenter getInstance(DataProcessingWarningManager manager) {
+    public static DataProcessingCenter getInstance(DataProcessingSetting setting) {
         if (mInstance == null) {
-            mInstance = new DataProcessingCenter(manager);
+            mInstance = new DataProcessingCenter(setting);
         }
         return mInstance;
+    }
+
+    public void reset() {
+        //正序停止,保证所有数据都能执行完毕
+        mCuttingThread.shutdown();
+        mSavingThread.shutdown();
+
+        mInstance = null;
     }
 
 }

@@ -8,7 +8,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public interface DataProcessingWarningManager {
 
-    void mangeOriginDataQueueWarning(LinkedBlockingQueue<Byte> originData, Exception e);
-    void mangeCuttingThreadQueueWarning(LinkedBlockingQueue<Byte> originData, LinkedBlockingQueue<byte[]> cutDataQueue, Exception e);
+    void manageOriginDataQueueWarning(LinkedBlockingQueue<Byte> originData, Exception e);
+    void manageCuttingThreadQueueWarning(LinkedBlockingQueue<Byte> originData, LinkedBlockingQueue<byte[]> cutDataQueue, Exception e);
+    void manageSavingDataThreadFileCreateFailedWarning(Exception e);
 
 }

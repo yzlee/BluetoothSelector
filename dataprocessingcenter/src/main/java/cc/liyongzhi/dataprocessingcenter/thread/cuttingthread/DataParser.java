@@ -1,4 +1,4 @@
-package cc.liyongzhi.dataprocessingcenter;
+package cc.liyongzhi.dataprocessingcenter.thread.cuttingthread;
 
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,9 +25,11 @@ public class DataParser {
     private int confiLength = 0;   //包长度
 
     private LinkedBlockingQueue<byte[]> mCutDataQueue;
+    private LinkedBlockingQueue<byte[]> mCutDataQueueForSaving;
 
-    private DataParser(LinkedBlockingQueue<byte[]> cutDataQueue) {
+    private DataParser(LinkedBlockingQueue<byte[]> cutDataQueue, LinkedBlockingQueue<byte[]> cutDataQueueForSaving) {
         mCutDataQueue = cutDataQueue;
+        mCutDataQueueForSaving = cutDataQueueForSaving;
     }
 
     /**
@@ -121,6 +123,7 @@ public class DataParser {
     }
     private void put(byte[] inQueue) throws InterruptedException {
         mCutDataQueue.put(inQueue);
+        mCutDataQueueForSaving.put(inQueue);
     }
     private void initHeader() {
         frameBuf[0] = 127;
@@ -128,9 +131,9 @@ public class DataParser {
         frameBuf[2] = 127;
         frameBuf[3] = -128;
     }
-    public static DataParser getInstance(LinkedBlockingQueue<byte[]> cutDataQueue) {
+    public static DataParser getInstance(LinkedBlockingQueue<byte[]> cutDataQueue, LinkedBlockingQueue<byte[]> cutDataQueueForSaving) {
         if (parser == null)
-            parser = new DataParser(cutDataQueue);
+            parser = new DataParser(cutDataQueue, cutDataQueueForSaving);
         return parser;
     }
 }
