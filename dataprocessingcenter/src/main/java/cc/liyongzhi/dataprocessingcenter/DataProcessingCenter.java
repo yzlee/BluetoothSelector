@@ -1,5 +1,6 @@
 package cc.liyongzhi.dataprocessingcenter;
 
+import java.lang.ref.PhantomReference;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /** 数据处理中心
@@ -13,25 +14,47 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class DataProcessingCenter {
 
-    public static LinkedBlockingQueue<Byte> originDataQueue = new LinkedBlockingQueue<Byte>();
+    public static final int HEADER_LENGTH = 19;
+    public static final int BODY_LENGTH = 4000;
 
-    public static void init(int headerLength, int bodyLength) {
+    private static DataProcessingCenter mInstance;
+    private DataProcessingWarningManager mManager;
 
+
+    private LinkedBlockingQueue<Byte> originDataQueue = new LinkedBlockingQueue<>();
+    private LinkedBlockingQueue<byte[]> cutDataQueue = new LinkedBlockingQueue<>();
+
+
+
+    private DataProcessingCenter(DataProcessingWarningManager manager) {
+        mManager = manager;
+
+        CuttingThread cuttingThread = new CuttingThread(HEADER_LENGTH, BODY_LENGTH, originDataQueue, cutDataQueue, mManager);
+
+        cuttingThread.start();
     }
 
     /**
      * 原始数据入口
      */
-    public synchronized static void putOriginData(byte b) {
+    public synchronized void putOriginData(byte b) {
         try {
             originDataQueue.put(b);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            mManager.mangeOriginDataQueueWarning(originDataQueue, e);
         }
     }
 
-    public synchronized static void putCutData(byte[] bytes) {
+    public synchronized void putCutData(byte[] bytes) {
 
+    }
+
+
+    public static DataProcessingCenter getInstance(DataProcessingWarningManager manager) {
+        if (mInstance == null) {
+            mInstance = new DataProcessingCenter(manager);
+        }
+        return mInstance;
     }
 
 }

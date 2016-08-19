@@ -1,6 +1,8 @@
 package cc.liyongzhi.dataprocessingcenter;
 
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 /**
  * 将输入流装包。
  * 先调用DataParser.getInstance()
@@ -21,6 +23,12 @@ public class DataParser {
     private byte[] headBuf = new byte[4];               // 头部缓存区
     private byte[] frameBuf = new byte[BUFFER_SIZE];    // 数据缓存区
     private int confiLength = 0;   //包长度
+
+    private LinkedBlockingQueue<byte[]> mCutDataQueue;
+
+    private DataParser(LinkedBlockingQueue<byte[]> cutDataQueue) {
+        mCutDataQueue = cutDataQueue;
+    }
 
     /**
      *  捕获初始化  初始化包头解析状态，缓存区，index
@@ -51,8 +59,7 @@ public class DataParser {
         }
     }
 
-    public void parsePacket(byte in)
-    {
+    public void parsePacket(byte in) throws InterruptedException {
         byte[] inByte = new byte[1];
         inByte[0] = in;
         if (headerState == HEADER_STATE.FAIL)
@@ -67,8 +74,7 @@ public class DataParser {
             parseCompletePacket(inByte);
         }
     }
-    private void parseCompletePacket(byte[] inbyte)
-    {
+    private void parseCompletePacket(byte[] inbyte) throws InterruptedException {
         index = index + 1;
         System.arraycopy(inbyte, 0, frameBuf, index, 1);
         if (index == 5)
@@ -99,20 +105,22 @@ public class DataParser {
         }
         //检查是否出现header结束
     }
-    private void putPacket() {
+    private void putPacket() throws InterruptedException {
         byte[] inQueue = new byte[4000 + HEAD_LEN];
         System.arraycopy(frameBuf, 0, inQueue, 0, confiLength + HEAD_LEN);
-        DataProcessingCenter.putCutData(inQueue);
-
+        put(inQueue);
     }
-    private void makeAFakePacketAndPut() {
+    private void makeAFakePacketAndPut() throws InterruptedException {
 
         byte[] inQueue = new byte[4000 + HEAD_LEN];
         for (int i = 19; i < 4000 + HEAD_LEN; i++) {
             frameBuf[i] = 126;
         }
         System.arraycopy(frameBuf, 0, inQueue, 0, 4000 + HEAD_LEN);
-        DataProcessingCenter.putCutData(inQueue);
+        put(inQueue);
+    }
+    private void put(byte[] inQueue) throws InterruptedException {
+        mCutDataQueue.put(inQueue);
     }
     private void initHeader() {
         frameBuf[0] = 127;
@@ -120,9 +128,9 @@ public class DataParser {
         frameBuf[2] = 127;
         frameBuf[3] = -128;
     }
-    public static DataParser getInstance() {
+    public static DataParser getInstance(LinkedBlockingQueue<byte[]> cutDataQueue) {
         if (parser == null)
-            parser = new DataParser();
+            parser = new DataParser(cutDataQueue);
         return parser;
     }
 }
