@@ -1,1 +1,1 @@
-include ':app', ':bluetoothselector'
+include ':app', ':bluetoothselector', ':dataprocessingcenter'
