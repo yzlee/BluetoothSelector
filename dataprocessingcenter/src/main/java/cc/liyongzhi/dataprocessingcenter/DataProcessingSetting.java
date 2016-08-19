@@ -1,5 +1,7 @@
 package cc.liyongzhi.dataprocessingcenter;
 
+import android.content.Context;
+import android.os.ConditionVariable;
 import android.os.Environment;
 
 /**
@@ -10,17 +12,19 @@ public class DataProcessingSetting {
 
     private final int headerLength = 19;
     private final int bodyLength = 4000;
-    private final String rootDir = Environment.getExternalStorageState() + "/";
+    private final String rootDir = Environment.getExternalStorageDirectory() + "/";
     private final String ecgDataDir = rootDir + "ECG-DATA" + "/";
 
     private DataProcessingWarningManager manager;
     private String patientID;
     private String patientName;
+    private Context context;
 
-    public DataProcessingSetting(DataProcessingWarningManager manager, String patientID, String patientName) {
+    public DataProcessingSetting(Context context, DataProcessingWarningManager manager, String patientID, String patientName) {
         this.manager = manager;
         this.patientID = patientID;
         this.patientName = patientName;
+        this.context = context;
     }
 
     public DataProcessingWarningManager getManager() {
@@ -34,6 +38,7 @@ public class DataProcessingSetting {
     public String getPatientName() {
         return patientName;
     }
+
 
     public int getHeaderLength() {
         return headerLength;
@@ -49,5 +54,9 @@ public class DataProcessingSetting {
 
     public String getEcgDataDir() {
         return ecgDataDir;
+    }
+
+    public Context getContext() {
+        return context;
     }
 }

@@ -39,6 +39,7 @@ public class DataProcessingCenter {
         mSavingThread = SavingThread.getInstance(cutDataQueueForSaving, mSetting);
 
         //倒序执行
+
         mSavingThread.start();
         mCuttingThread.start();
     }
@@ -52,10 +53,6 @@ public class DataProcessingCenter {
         } catch (InterruptedException e) {
             mManager.manageOriginDataQueueWarning(originDataQueue, e);
         }
-    }
-
-    public synchronized void putCutData(byte[] bytes) {
-
     }
 
 

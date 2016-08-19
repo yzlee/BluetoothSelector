@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import cc.liyongzhi.bluetoothselector.BluetoothConnectWithDataManageCallback;
 import cc.liyongzhi.bluetoothselector.MedBluetooth;
+import cc.liyongzhi.dataprocessingcenter.DataProcessingCenter;
+import cc.liyongzhi.dataprocessingcenter.DataProcessingSetting;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(Med.ACTION_DATA_RECEIVED);
         registerReceiver(mReceiver,filter);
 
+        DataProcessingSetting setting = new DataProcessingSetting(this, new WarningCenter(), "123", "刘凯");
+        final DataProcessingCenter dataProcessingCenter = DataProcessingCenter.getInstance(setting);
+
         mButton = (Button) findViewById(R.id.btn_connect_device);
         mButton2 = (Button) findViewById(R.id.btn_connect_device2);
 
@@ -58,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             DataParser dataParser = new DataParser();
                             for (int i = 0; i < bytes; i++) {
-                                dataParser.parsePacket(buffer[i]);
+                                dataProcessingCenter.putOriginData(buffer[i]);
                                 Med.data = Med.data + buffer[i] + " ";
                                 if (Med.data.length() > 100) {
                                     Med.data = "";
@@ -66,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                             Intent intent = new Intent(Med.ACTION_DATA_RECEIVED);
                             mContext.sendBroadcast(intent);
-                            Log.i("liyongzhi", "after sendBroadcast and Med.data = " + Med.data);
                         }
                     }
 
