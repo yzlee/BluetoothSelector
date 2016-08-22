@@ -1,10 +1,12 @@
 package cc.liyongzhi.dataprocessingcenter;
 
-import android.os.Environment;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import cc.liyongzhi.dataprocessingcenter.interf.DataProcessingWarningManager;
+import cc.liyongzhi.dataprocessingcenter.thread.OneToManyThread;
 import cc.liyongzhi.dataprocessingcenter.thread.cuttingthread.CuttingThread;
 import cc.liyongzhi.dataprocessingcenter.thread.SavingThread;
+import cc.liyongzhi.dataprocessingcenter.thread.parsingheaderthread.ParsingHeaderThread;
 
 /** 数据处理中心
  * 读取数据后，分为：
@@ -23,11 +25,15 @@ public class DataProcessingCenter {
     private DataProcessingSetting mSetting;
     private DataProcessingWarningManager mManager;
     private CuttingThread mCuttingThread;
+    private ParsingHeaderThread mParsingHeaderThread;
     private SavingThread mSavingThread;
+    private OneToManyThread<byte[]> mDupHeaderParsedQueue;
 
-    private LinkedBlockingQueue<Byte> originDataQueue = new LinkedBlockingQueue<>();
-    private LinkedBlockingQueue<byte[]> cutDataQueue = new LinkedBlockingQueue<>();
-    private LinkedBlockingQueue<byte[]> cutDataQueueForSaving = new LinkedBlockingQueue<>();
+    private LinkedBlockingQueue<Byte> originDataQueue = new LinkedBlockingQueue<>();  //原始数据队列
+    private LinkedBlockingQueue<byte[]> packetQueue = new LinkedBlockingQueue<>(); //按包打包后的队列
+    private LinkedBlockingQueue<byte[]> packetQueueWithHeaderParsed = new LinkedBlockingQueue<>(); //解析过头文件的队列
+    private LinkedBlockingQueue<byte[]> packetQueueForSaving = new LinkedBlockingQueue<>(); //用于保存的队列
+    private LinkedBlockingQueue<byte[]> packetQueueForDataParsing = new LinkedBlockingQueue<>(); //用于解析body的队列。
 
 
     private DataProcessingCenter(DataProcessingSetting setting) {
@@ -35,15 +41,26 @@ public class DataProcessingCenter {
         mManager = setting.getManager();
 
         //正序初始化，倒序执行，防止数据丢失。
-        mCuttingThread = CuttingThread.getInstance(originDataQueue, cutDataQueue, cutDataQueueForSaving, mSetting);
-        mSavingThread = SavingThread.getInstance(cutDataQueueForSaving, mSetting);
+        mCuttingThread = CuttingThread.getInstance(originDataQueue, packetQueue, mSetting);
+        mParsingHeaderThread = ParsingHeaderThread.getInstance(packetQueue, packetQueueWithHeaderParsed, mSetting);
+        mDupHeaderParsedQueue = new OneToManyThread<>(packetQueueWithHeaderParsed, mSetting);
+        mDupHeaderParsedQueue.addQueue(packetQueueForSaving);
+        mDupHeaderParsedQueue.addQueue(packetQueueForDataParsing);
+        mSavingThread = SavingThread.getInstance(packetQueueForSaving, mSetting);
+
+
 
 
         //倒序执行
 
         mSavingThread.start();
+
+        mDupHeaderParsedQueue.start();
+        mParsingHeaderThread.start();
         mCuttingThread.start();
     }
+
+
 
     /**
      * 原始数据入口
@@ -68,11 +85,16 @@ public class DataProcessingCenter {
     }
 
 
+    /**
+     * 更换病人后需重置
+     */
     public void reset() {
         //正序停止,保证所有数据都能执行完毕
         mCuttingThread.shutdown();
+        mDupHeaderParsedQueue.shutdown();
         mSavingThread.shutdown();
 
+        mSetting = null;
         mInstance = null;
     }
 

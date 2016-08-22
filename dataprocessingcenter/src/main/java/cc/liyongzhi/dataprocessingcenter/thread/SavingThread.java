@@ -44,6 +44,9 @@ public class SavingThread extends Thread implements Runnable {
     }
 
     private String generateFileName() {
+        if (mSetting.getPatientName() == null ) {
+            return null;
+        }
         return mSetting.getPatientName() + mSetting.getFileExtension();
     }
 
@@ -74,7 +77,16 @@ public class SavingThread extends Thread implements Runnable {
                     }
                 }
             }
+        }
 
+        //若未设置文件名则等待设置文件名后保存。
+        while (mFileName == null) {
+            try {
+                //为防止队列满后造成阻塞。
+                mCutDataQueueForSaving.take();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         File file = new File(mDir + mFileName);

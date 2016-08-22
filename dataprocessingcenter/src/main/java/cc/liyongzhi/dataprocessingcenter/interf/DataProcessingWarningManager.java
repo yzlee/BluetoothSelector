@@ -1,4 +1,4 @@
-package cc.liyongzhi.dataprocessingcenter;
+package cc.liyongzhi.dataprocessingcenter.interf;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -11,5 +11,6 @@ public interface DataProcessingWarningManager {
     void manageOriginDataQueueWarning(LinkedBlockingQueue<Byte> originData, Exception e);
     void manageCuttingThreadQueueWarning(LinkedBlockingQueue<Byte> originData, LinkedBlockingQueue<byte[]> cutDataQueue, Exception e);
     void manageSavingDataThreadFileCreateFailedWarning(Exception e);
+    void manageOneToManyThreadPutDataFailed();
 
 }

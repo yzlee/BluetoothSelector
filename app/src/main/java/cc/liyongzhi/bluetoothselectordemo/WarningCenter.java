@@ -2,10 +2,9 @@ package cc.liyongzhi.bluetoothselectordemo;
 
 import android.util.Log;
 
-import java.io.OutputStream;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import cc.liyongzhi.dataprocessingcenter.DataProcessingWarningManager;
+import cc.liyongzhi.dataprocessingcenter.interf.DataProcessingWarningManager;
 
 
 /** 报警中心，可能出现的问题在这里统一处理

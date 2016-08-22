@@ -3,7 +3,7 @@ package cc.liyongzhi.dataprocessingcenter.thread.cuttingthread;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import cc.liyongzhi.dataprocessingcenter.DataProcessingSetting;
-import cc.liyongzhi.dataprocessingcenter.DataProcessingWarningManager;
+import cc.liyongzhi.dataprocessingcenter.interf.DataProcessingWarningManager;
 
 /**将每个数据包分离
  * Created by lee on 8/19/16.
@@ -17,7 +17,6 @@ public class CuttingThread extends Thread implements Runnable {
     private int mBodyLength;
     private LinkedBlockingQueue<Byte> mOriginDataQueue;
     private LinkedBlockingQueue<byte[]> mCutDataQueue;
-    private LinkedBlockingQueue<byte[]> mCutDataQueueForSaving;
     private DataProcessingSetting mSetting;
     private DataProcessingWarningManager mManager;
 
@@ -25,12 +24,10 @@ public class CuttingThread extends Thread implements Runnable {
 
     private CuttingThread(LinkedBlockingQueue<Byte> originDataQueue,
                           LinkedBlockingQueue<byte[]> cutDataQueue,
-                          LinkedBlockingQueue<byte[]> cutDataQueueForSaving,
                           DataProcessingSetting setting) {
 
         mOriginDataQueue = originDataQueue;
         mCutDataQueue = cutDataQueue;
-        mCutDataQueueForSaving = cutDataQueueForSaving;
         mSetting = setting;
 
         mHeaderLength = mSetting.getHeaderLength();
@@ -41,7 +38,7 @@ public class CuttingThread extends Thread implements Runnable {
 
     public void run() {
 
-        DataParser parser = DataParser.getInstance(mCutDataQueue, mCutDataQueueForSaving);
+        DataParser parser = DataParser.getInstance(mCutDataQueue);
         while (mRunFlag) {
             try {
                 byte data = mOriginDataQueue.take();
@@ -58,10 +55,9 @@ public class CuttingThread extends Thread implements Runnable {
 
     public static CuttingThread getInstance(LinkedBlockingQueue<Byte> originDataQueue,
                                             LinkedBlockingQueue<byte[]> cutDataQueue,
-                                            LinkedBlockingQueue<byte[]> cutDataQueueForSaving,
                                             DataProcessingSetting setting) {
         if (mInstance == null) {
-            mInstance = new CuttingThread(originDataQueue, cutDataQueue, cutDataQueueForSaving, setting);
+            mInstance = new CuttingThread(originDataQueue, cutDataQueue, setting);
         }
         return mInstance;
     }

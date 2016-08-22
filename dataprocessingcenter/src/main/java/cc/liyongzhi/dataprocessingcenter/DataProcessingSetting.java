@@ -1,8 +1,9 @@
 package cc.liyongzhi.dataprocessingcenter;
 
 import android.content.Context;
-import android.os.ConditionVariable;
 import android.os.Environment;
+
+import cc.liyongzhi.dataprocessingcenter.interf.DataProcessingWarningManager;
 
 /**
  * Created by lee on 8/19/16.
@@ -23,15 +24,33 @@ public class DataProcessingSetting {
     private String patientName;
     private Context context;
 
+    /**
+     * 未开单但是需要画图时，调用本构造器。然后调用{@link #setPatientID(String)}与{@link #setPatientName(String)}后开始绘图。
+     * @param context
+     * @param manager
+     */
+    public DataProcessingSetting(Context context, DataProcessingWarningManager manager) {
+        this.manager = manager;
+        this.context = context;
+    }
+
     public DataProcessingSetting(Context context, DataProcessingWarningManager manager, String patientID, String patientName) {
+        this.context = context;
         this.manager = manager;
         this.patientID = patientID;
         this.patientName = patientName;
-        this.context = context;
     }
 
     public DataProcessingWarningManager getManager() {
         return manager;
+    }
+
+    public void setPatientID(String patientID) {
+        this.patientID = patientID;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
     }
 
     public String getPatientID() {

@@ -25,11 +25,9 @@ public class DataParser {
     private int confiLength = 0;   //包长度
 
     private LinkedBlockingQueue<byte[]> mCutDataQueue;
-    private LinkedBlockingQueue<byte[]> mCutDataQueueForSaving;
 
-    private DataParser(LinkedBlockingQueue<byte[]> cutDataQueue, LinkedBlockingQueue<byte[]> cutDataQueueForSaving) {
+    private DataParser(LinkedBlockingQueue<byte[]> cutDataQueue) {
         mCutDataQueue = cutDataQueue;
-        mCutDataQueueForSaving = cutDataQueueForSaving;
     }
 
     /**
@@ -123,7 +121,6 @@ public class DataParser {
     }
     private void put(byte[] inQueue) throws InterruptedException {
         mCutDataQueue.put(inQueue);
-        mCutDataQueueForSaving.put(inQueue);
     }
     private void initHeader() {
         frameBuf[0] = 127;
@@ -131,9 +128,9 @@ public class DataParser {
         frameBuf[2] = 127;
         frameBuf[3] = -128;
     }
-    public static DataParser getInstance(LinkedBlockingQueue<byte[]> cutDataQueue, LinkedBlockingQueue<byte[]> cutDataQueueForSaving) {
+    public static DataParser getInstance(LinkedBlockingQueue<byte[]> cutDataQueue) {
         if (parser == null)
-            parser = new DataParser(cutDataQueue, cutDataQueueForSaving);
+            parser = new DataParser(cutDataQueue);
         return parser;
     }
 }
