@@ -19,9 +19,9 @@ import cc.liyongzhi.dataprocessingcenter.thread.parsingheaderthread.ParsingHeade
  * Created by lee on 8/18/16.
  */
 
-public class DataProcessing implements DataProcessingInterface {
+public class DataProcessingCenter implements DataProcessingInterface {
 
-    private static DataProcessing mInstance;
+    private static DataProcessingCenter mInstance;
 
     private DataProcessingSetting mSetting;
     private DataProcessingWarningManager mManager;
@@ -36,10 +36,10 @@ public class DataProcessing implements DataProcessingInterface {
     private LinkedBlockingQueue<byte[]> packetQueueWithHeaderParsed = new LinkedBlockingQueue<>(); //解析过头文件的队列
     private LinkedBlockingQueue<byte[]> packetQueueForSaving = new LinkedBlockingQueue<>(); //用于保存的队列
     private LinkedBlockingQueue<byte[]> packetQueueForDataParsing = new LinkedBlockingQueue<>(); //用于解析body的队列。
-    private LinkedBlockingQueue<int[]> dataQueue = new LinkedBlockingQueue<>(); //数据队列，每个元素为一个12大小的数据，保存着12导联的数据。
+    private LinkedBlockingQueue<short[]> dataQueue = new LinkedBlockingQueue<>(); //数据队列，每个元素为一个12大小的数据，保存着12导联的数据。
 
 
-    private DataProcessing(DataProcessingSetting setting) {
+    private DataProcessingCenter(DataProcessingSetting setting) {
         mSetting = setting;
         mManager = setting.getManager();
 
@@ -55,7 +55,7 @@ public class DataProcessing implements DataProcessingInterface {
 
 
         //倒序执行
-
+        mParsingBodyThread.start();
         mSavingThread.start();
         mDupHeaderParsedQueue.start();
         mParsingHeaderThread.start();
@@ -79,9 +79,9 @@ public class DataProcessing implements DataProcessingInterface {
         mSavingThread.startSaving();
     }
 
-    public static DataProcessing getInstance(DataProcessingSetting setting) {
+    public static DataProcessingCenter getInstance(DataProcessingSetting setting) {
         if (mInstance == null) {
-            mInstance = new DataProcessing(setting);
+            mInstance = new DataProcessingCenter(setting);
         }
         return mInstance;
     }
@@ -96,6 +96,7 @@ public class DataProcessing implements DataProcessingInterface {
         mParsingHeaderThread.shutdown();
         mDupHeaderParsedQueue.shutdown();
         mSavingThread.shutdown();
+        mParsingBodyThread.shutdown();
 
         mSetting = null;
         mInstance = null;
