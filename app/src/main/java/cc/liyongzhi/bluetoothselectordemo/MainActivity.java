@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         DataProcessingSetting setting = new DataProcessingSetting(this, new WarningCenter(), "123", "刘凯");
         final DataProcessingCenter dataProcessingCenter = DataProcessingCenter.getInstance(setting);
+        dataProcessingCenter.startSaving();
 
         mButton = (Button) findViewById(R.id.btn_connect_device);
         mButton2 = (Button) findViewById(R.id.btn_connect_device2);

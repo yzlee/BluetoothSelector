@@ -2,23 +2,19 @@ package cc.liyongzhi.dataprocessingcenter.thread;
 
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import cc.liyongzhi.dataprocessingcenter.DataProcessingSetting;
 
 
-/**将心电信息保存到本地的类。
+/**
+ * 将心电信息保存到本地的类。
  * Created by lee on 8/19/16.
  */
 
@@ -33,7 +29,7 @@ public class SavingThread extends Thread implements Runnable {
 
     private boolean mRunFlag = true;
     private boolean mSavingFlag = false;
-    private boolean mSavingHeader = false;
+    private final boolean mSavingHeader;
 
     private SavingThread(LinkedBlockingQueue<byte[]> cutDataQueueForSaving, DataProcessingSetting setting) {
         //赋值
@@ -41,13 +37,14 @@ public class SavingThread extends Thread implements Runnable {
         mSetting = setting;
 
         //初始化
+        mSavingHeader = mSetting.isSavingHeader();
         mDir = mSetting.getEcgDataDir();
         mFileName = generateFileName();
         mRunFlag = true;
     }
 
     private String generateFileName() {
-        return mSetting.getPatientName();
+        return mSetting.getPatientName() + mSetting.getFileExtension();
     }
 
     public void run() {
@@ -55,6 +52,29 @@ public class SavingThread extends Thread implements Runnable {
         File dir = new File(mDir);
         if (!dir.exists()) {
             boolean result = dir.mkdirs();
+        } else {
+            FilenameFilter filenameFilter = new FilenameFilter() {
+                @Override
+                public boolean accept(File file, String s) {
+                    return s.endsWith(mSetting.getFileExtension());
+                }
+            };
+            int number = dir.listFiles(filenameFilter).length;
+            if (number > mSetting.getMaxDataFileNum()) {
+                File[] files = dir.listFiles();
+                File firstFile = files[0];
+                for (int i = 1; i < number; i++) {
+                    if (files[i].lastModified() < firstFile.lastModified()) {
+                        firstFile = files[i];
+                    }
+                }
+                if (firstFile.exists()) {
+                    if (firstFile.isFile()) {
+                        boolean result = firstFile.delete();
+                    }
+                }
+            }
+
         }
 
         File file = new File(mDir + mFileName);
@@ -65,15 +85,6 @@ public class SavingThread extends Thread implements Runnable {
                 mSetting.getManager().manageSavingDataThreadFileCreateFailedWarning(e);
             }
         }
-
-        MediaScannerConnection.scanFile(mSetting.getContext().getApplicationContext(), new String[] { file.getAbsolutePath() }, new String[] { "application/octet-stream" }, new MediaScannerConnection.OnScanCompletedListener()
-        {
-            @Override
-            public void onScanCompleted(final String path, final Uri uri)
-            {
-                // Eureka, your file has been scanned!
-            }
-        });
 
         try {
             FileOutputStream fos = new FileOutputStream(file, true);
@@ -95,6 +106,12 @@ public class SavingThread extends Thread implements Runnable {
                         mStream.write(data[i]);
                     }
                     mStream.flush();
+                    MediaScannerConnection.scanFile(mSetting.getContext().getApplicationContext(), new String[]{file.getAbsolutePath()}, new String[]{"application/octet-stream"}, new MediaScannerConnection.OnScanCompletedListener() {
+                        @Override
+                        public void onScanCompleted(final String path, final Uri uri) {
+                            // Eureka, your file has been scanned!
+                        }
+                    });
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -117,16 +134,7 @@ public class SavingThread extends Thread implements Runnable {
      * 开始存数数据，默认不保留头文件
      */
     public void startSaving() {
-        startSaving(false);
-    }
-
-    /**
-     * 开始存数数据
-     * @param b true为保留头文件，false为不保留
-     */
-    public void startSaving(boolean b) {
         mSavingFlag = true;
-        mSavingHeader = b;
     }
 
     public void pauseSaving() {

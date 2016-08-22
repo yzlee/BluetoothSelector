@@ -12,8 +12,11 @@ public class DataProcessingSetting {
 
     private final int headerLength = 19;
     private final int bodyLength = 4000;
-    private final String rootDir = Environment.getExternalStorageDirectory() + "/";
-    private final String ecgDataDir = rootDir + "ECG-DATA" + "/";
+    private final int maxDataFileNum = 3; //最大保存心电文件数据数量
+    private final boolean savingHeader = false; // 是否保存header
+    private final String fileExtension = ".dat"; //文件名扩展
+    private final String rootDir = Environment.getExternalStorageDirectory() + "/"; //根目录
+    private final String ecgDataDir = rootDir + "ECG-DATA" + "/"; //心电数据保存目录
 
     private DataProcessingWarningManager manager;
     private String patientID;
@@ -58,5 +61,17 @@ public class DataProcessingSetting {
 
     public Context getContext() {
         return context;
+    }
+
+    public String getFileExtension() {
+        return fileExtension;
+    }
+
+    public int getMaxDataFileNum() {
+        return maxDataFileNum;
+    }
+
+    public boolean isSavingHeader() {
+        return savingHeader;
     }
 }
