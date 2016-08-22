@@ -6,6 +6,7 @@ import cc.liyongzhi.dataprocessingcenter.interf.DataProcessingWarningManager;
 import cc.liyongzhi.dataprocessingcenter.thread.OneToManyThread;
 import cc.liyongzhi.dataprocessingcenter.thread.cuttingthread.CuttingThread;
 import cc.liyongzhi.dataprocessingcenter.thread.SavingThread;
+import cc.liyongzhi.dataprocessingcenter.thread.parsingbodythread.ParsingBodyThread;
 import cc.liyongzhi.dataprocessingcenter.thread.parsingheaderthread.ParsingHeaderThread;
 
 /** 数据处理中心
@@ -18,15 +19,16 @@ import cc.liyongzhi.dataprocessingcenter.thread.parsingheaderthread.ParsingHeade
  * Created by lee on 8/18/16.
  */
 
-public class DataProcessingCenter {
+public class DataProcessing implements DataProcessingInterface {
 
-    private static DataProcessingCenter mInstance;
+    private static DataProcessing mInstance;
 
     private DataProcessingSetting mSetting;
     private DataProcessingWarningManager mManager;
     private CuttingThread mCuttingThread;
     private ParsingHeaderThread mParsingHeaderThread;
     private SavingThread mSavingThread;
+    private ParsingBodyThread mParsingBodyThread;
     private OneToManyThread<byte[]> mDupHeaderParsedQueue;
 
     private LinkedBlockingQueue<Byte> originDataQueue = new LinkedBlockingQueue<>();  //原始数据队列
@@ -34,9 +36,10 @@ public class DataProcessingCenter {
     private LinkedBlockingQueue<byte[]> packetQueueWithHeaderParsed = new LinkedBlockingQueue<>(); //解析过头文件的队列
     private LinkedBlockingQueue<byte[]> packetQueueForSaving = new LinkedBlockingQueue<>(); //用于保存的队列
     private LinkedBlockingQueue<byte[]> packetQueueForDataParsing = new LinkedBlockingQueue<>(); //用于解析body的队列。
+    private LinkedBlockingQueue<int[]> dataQueue = new LinkedBlockingQueue<>(); //数据队列，每个元素为一个12大小的数据，保存着12导联的数据。
 
 
-    private DataProcessingCenter(DataProcessingSetting setting) {
+    private DataProcessing(DataProcessingSetting setting) {
         mSetting = setting;
         mManager = setting.getManager();
 
@@ -47,14 +50,13 @@ public class DataProcessingCenter {
         mDupHeaderParsedQueue.addQueue(packetQueueForSaving);
         mDupHeaderParsedQueue.addQueue(packetQueueForDataParsing);
         mSavingThread = SavingThread.getInstance(packetQueueForSaving, mSetting);
-
+        mParsingBodyThread = ParsingBodyThread.getInstance(packetQueueForDataParsing, dataQueue, mSetting);
 
 
 
         //倒序执行
 
         mSavingThread.start();
-
         mDupHeaderParsedQueue.start();
         mParsingHeaderThread.start();
         mCuttingThread.start();
@@ -77,9 +79,9 @@ public class DataProcessingCenter {
         mSavingThread.startSaving();
     }
 
-    public static DataProcessingCenter getInstance(DataProcessingSetting setting) {
+    public static DataProcessing getInstance(DataProcessingSetting setting) {
         if (mInstance == null) {
-            mInstance = new DataProcessingCenter(setting);
+            mInstance = new DataProcessing(setting);
         }
         return mInstance;
     }
@@ -91,6 +93,7 @@ public class DataProcessingCenter {
     public void reset() {
         //正序停止,保证所有数据都能执行完毕
         mCuttingThread.shutdown();
+        mParsingHeaderThread.shutdown();
         mDupHeaderParsedQueue.shutdown();
         mSavingThread.shutdown();
 

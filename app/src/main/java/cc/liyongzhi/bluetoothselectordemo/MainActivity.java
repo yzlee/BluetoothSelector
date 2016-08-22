@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import cc.liyongzhi.bluetoothselector.BluetoothConnectWithDataManageCallback;
 import cc.liyongzhi.bluetoothselector.MedBluetooth;
-import cc.liyongzhi.dataprocessingcenter.DataProcessingCenter;
+import cc.liyongzhi.dataprocessingcenter.DataProcessing;
 import cc.liyongzhi.dataprocessingcenter.DataProcessingSetting;
 
 public class MainActivity extends AppCompatActivity {
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(mReceiver,filter);
 
         DataProcessingSetting setting = new DataProcessingSetting(this, new WarningCenter(), "123", "刘凯");
-        final DataProcessingCenter dataProcessingCenter = DataProcessingCenter.getInstance(setting);
+        final DataProcessing dataProcessingCenter = DataProcessing.getInstance(setting);
         dataProcessingCenter.startSaving();
 
         mButton = (Button) findViewById(R.id.btn_connect_device);
