@@ -37,4 +37,9 @@ public class WarningCenter implements DataProcessingWarningManager {
     public void manageSavingDataThreadFileCreateFailedWarning(Exception e) {
         e.printStackTrace();
     }
+
+    @Override
+    public void manageOneToManyThreadPutDataFailed() {
+
+    }
 }

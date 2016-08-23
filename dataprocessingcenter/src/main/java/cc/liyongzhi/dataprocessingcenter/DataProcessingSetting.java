@@ -93,4 +93,5 @@ public class DataProcessingSetting {
     public boolean isSavingHeader() {
         return savingHeader;
     }
+
 }
