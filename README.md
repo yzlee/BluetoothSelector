@@ -25,7 +25,7 @@
 
 #### Gradle:
 
-> compile 'cc.liyongzhi.bluetoothselector:bluetoothselector:1.9'
+> compile 'cc.liyongzhi.bluetoothselector:bluetoothselector:1.9.1'
 
 
 ## 使用
@@ -151,6 +151,10 @@ mButton.setOnClickListener(new View.OnClickListener() {
 - 输入还可以为`Context`、`String（mac地址）`、`Boolean（是否显示等待界面）`、`BluetoothConnectCallback`，可以用于重连，代码几乎同上。
 
 ## 更新历史
+
+#### 2016.8.23 version 1.9.1
+
+更新gradle引用
 
 #### 2016.6.3 version 1.9
 
