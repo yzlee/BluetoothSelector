@@ -150,7 +150,12 @@ mButton.setOnClickListener(new View.OnClickListener() {
 
 - 输入还可以为`Context`、`String（mac地址）`、`Boolean（是否显示等待界面）`、`BluetoothConnectCallback`，可以用于重连，代码几乎同上。
 
+
 ## 更新历史
+
+#### 2016.9.3 version 1.9.3
+
+蓝牙连接与断开时发送广播，包涵状态改变设备的mac地址。
 
 #### 2016.8.23 version 1.9.1
 
