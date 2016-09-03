@@ -23,12 +23,17 @@ public class MedBluetooth {
 
     protected static final String INTENT_ACTION_BLUETOOTH_ADAPTER_CANCEL_DISCOVERY = "cc.liyongzhi.action.BLUETOOTH_ADAPTER_CANCEL_DISCOVERY";
 
+    public static final String INTENT_BLUETOOTH_DISCONNECTED = "cc.liyongzhi.action.BLUETOOTH_DISCONNECTED";
+    public static final String INTENT_BLUETOOTH_CONNECTED = "cc.liyongzhi.action.BLUETOOTH_CONNECTED";
+    public static final String EXTRA_BLUETOOTH_MAC = "mac";
+
     private static BluetoothAdapter mBluetoothAdapter;
     private static BluetoothSocket mBluetoothSocket;
     private static HashMap<String, BluetoothConnectCallback> mBluetoothConnectCallbackMap = new HashMap<>();
     private static HashMap<String, BluetoothReadDataThread> mBluetoothReadDataThreadMap = new HashMap<>();
     private static HashMap<String, String> mMacToKey = new HashMap<>();
     protected static Handler mHandler;
+    private static Context mContext;
     private static HashMap<String, ConnectBluetoothThread> mBluetoothMap = new HashMap<>(); //防止同一mac地址多次连接。
 
     private static final String TAG = "MedBluetooth";
@@ -57,6 +62,8 @@ public class MedBluetooth {
                 mHandler = new Handler();
             }
         }
+
+        mContext = context;
 
         Log.d(TAG, "connectBluetooth: before put in map bluetoothConnectCallback instanceof BluetoothConnectWithDataManageCallback == " + (bluetoothConnectCallback instanceof BluetoothConnectWithDataManageCallback));
 
@@ -148,6 +155,10 @@ public class MedBluetooth {
             mBluetoothConnectCallbackMap.remove(key);
             Log.i("BluetoothStateChange", "e != null mac = " + device.getAddress());
             Log.i("BluetoothStateChange", "e != null key = " + mMacToKey.get(device.getAddress()));
+        } else {
+            Intent intent = new Intent(INTENT_BLUETOOTH_CONNECTED);
+            intent.putExtra(EXTRA_BLUETOOTH_MAC, device.getAddress());
+            mContext.sendBroadcast(intent);
         }
     }
 
@@ -163,6 +174,11 @@ public class MedBluetooth {
                 thread.stopThread();
                 thread.interrupt();
             }
+            //send broadcast to user
+            Intent intent = new Intent(INTENT_BLUETOOTH_DISCONNECTED);
+            intent.putExtra(EXTRA_BLUETOOTH_MAC, mac);
+            mContext.sendBroadcast(intent);
+
             mBluetoothConnectCallbackMap.get(key).internalDisconnected();
             mBluetoothConnectCallbackMap.remove(key);
         }
