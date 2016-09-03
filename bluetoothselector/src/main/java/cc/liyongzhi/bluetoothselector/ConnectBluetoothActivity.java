@@ -46,7 +46,7 @@ public class ConnectBluetoothActivity extends AppCompatActivity {
             @Override
             public void done(BluetoothSocket socket, BluetoothDevice device, IOException e) {
                 if (e != null) {
-                    Toast.makeText(mContext, "连接失败，请重新连接", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "连接失败，" + e.getMessage(), Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                     BluetoothScreenManger.getScreenManger().popActivity((Activity) mContext);
                 } else {
