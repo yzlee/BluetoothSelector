@@ -53,6 +53,7 @@ public class ConnectBluetoothThread extends Thread {
 
         if (!mBluetoothAdapter.isEnabled()) {
             Intent intent = new Intent(mContext,OpenBluetoothActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mContext.startActivity(intent);
             //Todo 连接成功后回调
         }

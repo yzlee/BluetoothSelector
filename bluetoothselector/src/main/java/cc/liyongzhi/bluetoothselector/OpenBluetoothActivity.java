@@ -27,6 +27,7 @@ public class OpenBluetoothActivity extends AppCompatActivity {
         BluetoothScreenManger.getScreenManger().pushActivity(this);
 
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        enableBtIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
     }
 

@@ -101,6 +101,7 @@ public class ChooseBluetoothActivity extends AppCompatActivity {
     private Boolean checkBluetoothIsEnable() {
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            enableBtIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             Toast.makeText(this, "蓝牙未打开", Toast.LENGTH_SHORT).show();
             return false;

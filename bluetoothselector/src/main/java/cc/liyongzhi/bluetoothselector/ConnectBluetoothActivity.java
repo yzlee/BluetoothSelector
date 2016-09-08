@@ -38,6 +38,7 @@ public class ConnectBluetoothActivity extends AppCompatActivity {
 
         if (mac == null || mac.equals("")) {
             Intent intent = new Intent(this, ChooseBluetoothActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
         }

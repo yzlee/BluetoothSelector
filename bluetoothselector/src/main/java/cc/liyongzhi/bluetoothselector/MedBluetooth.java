@@ -88,6 +88,7 @@ public class MedBluetooth {
 
         if (!mBluetoothAdapter.isEnabled()) {
             Intent intent = new Intent(context, OpenBluetoothActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
             return;
         }
@@ -95,11 +96,13 @@ public class MedBluetooth {
         if (mac == null || mac.equals("")) {
             Intent intent = new Intent(context, ChooseBluetoothActivity.class);
             intent.putExtra("callback_key", key);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         } else if (showConnectBluetoothActivity) {
             Intent intent = new Intent(context, ConnectBluetoothActivity.class);
             intent.putExtra("callback_key", key);
             intent.putExtra("bluetooth_mac_address", mac);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         } else if (!showConnectBluetoothActivity) {
             ConnectBluetoothThread.startUniqueConnectThread(context, mac, new SocketConnectedCallback() {

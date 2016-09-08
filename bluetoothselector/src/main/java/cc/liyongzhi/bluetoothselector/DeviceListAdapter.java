@@ -116,6 +116,7 @@ public class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     Intent intent = new Intent(itemView.getContext(), ConnectBluetoothActivity.class);
                     intent.putExtra("bluetooth_mac_address", mac);
                     intent.putExtra("callback_key", mKey);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     mContext.startActivity(intent);
                 }
             });
