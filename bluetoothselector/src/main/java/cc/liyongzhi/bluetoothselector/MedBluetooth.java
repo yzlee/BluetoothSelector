@@ -35,7 +35,7 @@ public class MedBluetooth {
     protected static Handler mHandler;
     private static Context mContext;
     private static HashMap<String, ConnectBluetoothThread> mBluetoothMap = new HashMap<>(); //防止同一mac地址多次连接。
-
+    private static HashMap<String, BluetoothSocket> mSocketMap = new HashMap<>();
     private static final String TAG = "MedBluetooth";
 
     /**
@@ -116,6 +116,10 @@ public class MedBluetooth {
                 }
             });
         }
+    }
+
+    public static void disconnect(String mac) {
+        executeBluetoothDisconnectedCallback(mac);
     }
 
     protected static void executeBluetoothConnectCallback(BluetoothSocket socket, BluetoothDevice device, Exception e, String key) {
@@ -199,4 +203,15 @@ public class MedBluetooth {
         mBluetoothMap.remove(mac);
     }
 
+    static void addSocketToMap(String mac, BluetoothSocket socket) {
+        mSocketMap.put(mac, socket);
+    }
+
+    static void removeSocketFromMap(String mac) {
+        mSocketMap.remove(mac);
+    }
+
+    static BluetoothSocket getSocketFromMap(String mac) {
+        return mSocketMap.get(mac);
+    }
 }

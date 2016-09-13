@@ -6,6 +6,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Created by lee on 6/3/16.
@@ -14,6 +15,7 @@ public class BluetoothReadDataThread extends Thread {
 
     private BluetoothSocket mSocket;
     private BluetoothConnectWithDataManageCallback mConnectCallback;
+    private InputStream inputStream;
     private static final String TAG = "BluetoothReadDataThread";
     private Boolean mStop = false;
 
@@ -31,7 +33,7 @@ public class BluetoothReadDataThread extends Thread {
                 return;
             }
 
-            InputStream inputStream = mSocket.getInputStream();
+            inputStream = mSocket.getInputStream();
 
             if (inputStream == null) {
                 mConnectCallback.internalDataMange(0, null, new Exception("InputStream 创建失败"));
@@ -54,6 +56,10 @@ public class BluetoothReadDataThread extends Thread {
                 } catch (IOException e) {
                     e.printStackTrace();
                     mConnectCallback.internalDataMange(bytes, buffer, new Exception("处理数据出错！"));
+                    if (!mSocket.isConnected()) {
+                        inputStream.close();
+                        MedBluetooth.executeBluetoothDisconnectedCallback(mSocket.getRemoteDevice().getAddress());
+                    }
                 }
             }
 
@@ -64,6 +70,14 @@ public class BluetoothReadDataThread extends Thread {
     }
 
     public void stopThread() {
+        try {
+            inputStream.close();
+            OutputStream outputStream = mSocket.getOutputStream();
+            outputStream.close();
+            mSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         mStop = true;
     }
 
