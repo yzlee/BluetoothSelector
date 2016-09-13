@@ -153,9 +153,13 @@ mButton.setOnClickListener(new View.OnClickListener() {
 
 ## 更新历史
 
+#### 2016.9.13 version 1.10.0
+
+添加断开连接函数
+
 #### 2016.9.3 version 1.9.3
 
-蓝牙连接与断开时发送广播，包涵状态改变设备的mac地址。
+蓝牙连接与断开时发送广播，包涵状态发生改变设备的mac地址。
 
 #### 2016.8.23 version 1.9.1
 

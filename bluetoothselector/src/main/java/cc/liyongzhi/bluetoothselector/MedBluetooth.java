@@ -12,6 +12,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.IllegalFormatCodePointException;
+import java.util.Set;
 
 import cc.liyongzhi.bluetoothselector.exceptions.BluetoothNotSupportException;
 
@@ -120,6 +121,14 @@ public class MedBluetooth {
 
     public static void disconnect(String mac) {
         executeBluetoothDisconnectedCallback(mac);
+    }
+
+    public static void disconnectAll() {
+        Set<String> macs = mMacToKey.keySet();
+        for (String mac :
+                macs) {
+            executeBluetoothDisconnectedCallback(mac);
+        }
     }
 
     protected static void executeBluetoothConnectCallback(BluetoothSocket socket, BluetoothDevice device, Exception e, String key) {
